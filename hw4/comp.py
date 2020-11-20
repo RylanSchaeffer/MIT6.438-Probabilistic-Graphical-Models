@@ -143,16 +143,9 @@ def gaussian_belief_prop(y, A, C, Q, Rs, mu_0, Lambda_0):
         hs=hs, hs_forward=hs_forward, hs_backward=hs_backward,
         Js=Js, Js_forward=Js_forward, Js_backward=Js_backward)
 
-    times = np.arange(len(y))
-    vars = np.array([inv(Js_hat[time])[0, 0] for time in times])
-    means = np.array([(inv(Js_hat[time]) @ hs_hat[time])[0] for time in times])
-
-    p = plt.plot(times, means)
-    plt.fill_between(times,
-                     means - np.sqrt(vars),
-                     means + np.sqrt(vars),
-                     color=p[-1].get_color(),
-                     alpha=0.3)
+    vars = np.array([inv(Js_hat[time]) for time in times])
+    means = np.array([(inv(Js_hat[time]) @ hs_hat[time]) for time in times])
+    return means, vars
 
 
 # b(iii)
@@ -162,8 +155,16 @@ Q = np.array([[1.]])
 Rs = np.full(shape=(len(y), 1, 1), fill_value=Rhat)
 mu_0 = np.array([100.])
 Lambda_0 = np.array([[1.]])
-gaussian_belief_prop(y=np.expand_dims(y, axis=-1),
+times = np.arange(len(y))
+means, vars = gaussian_belief_prop(y=np.expand_dims(y, axis=-1),
                      A=A, C=C, Q=Q, Rs=Rs, mu_0=mu_0, Lambda_0=Lambda_0)
+
+p = plt.plot(times, means[:, 0])
+plt.fill_between(times,
+                 means[:, 0] - np.sqrt(vars[:, 0, 0]),
+                 means[:, 0] + np.sqrt(vars[:, 0, 0]),
+                 color=p[-1].get_color(),
+                 alpha=0.3)
 plt.savefig('Comp_b(iii).jpg')
 plt.show()
 
@@ -171,8 +172,8 @@ plt.show()
 # b(iv)
 A = np.array([[0.9999, 0.], [0.9999, 1.]])
 C = np.array([[Chat[0, 0], 0.], [0., 1.]])
-epsilon = 1e-6
-sigma = 1e6
+epsilon = 1e-3
+sigma = 1e3
 Q = np.array([[1., 1.], [1., 1. + epsilon]])
 Rs = np.stack([np.array([[Rhat, 0.], [0., 0.]]) for _ in range(len(y))])
 observed_indices = np.array([True if (i + 1) % m == 0 else False for i in range(len(y))])
@@ -183,7 +184,17 @@ s_rep = np.array([s[i//m] for i in range(len(y))])
 y_aug = np.stack([np.squeeze(y), s_rep]).transpose((1, 0))
 mu_0 = np.array([100., 100.])
 Lambda_0 = np.array([[1., 0.], [0., 1.]])
-gaussian_belief_prop(y=y_aug, A=A, C=C, Q=Q, Rs=Rs, mu_0=mu_0, Lambda_0=Lambda_0)
-plt.savefig('Comp_b(iv).jpg')
+means, vars = gaussian_belief_prop(y=y_aug, A=A, C=C, Q=Q, Rs=Rs, mu_0=mu_0, Lambda_0=Lambda_0)
+
+p = plt.plot(times, means[:, 0])
+plt.fill_between(times,
+                 means[:, 0] - np.sqrt(vars[:, 0, 0]),
+                 means[:, 0] + np.sqrt(vars[:, 0, 0]),
+                 color=p[-1].get_color(),
+                 alpha=0.3)
+plt.savefig('Comp_b(iv)-x.jpg')
 plt.show()
 
+p = plt.plot(times, vars[:, 1, 1])
+plt.savefig('Comp_b(iv)-s.jpg')
+plt.show()
