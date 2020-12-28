@@ -5,3 +5,4 @@ Instructors: Professors [Devavrat Shah](https://devavrat.mit.edu/) and [Caroline
 
 Final Grade: A-
 
+With tremendous gratitude to my study group, without whom I would have had a terrible semester. In order of joining: Colin Poler, Ben Tang, Devin Connolly, Aviv Netanyahu, Hannah Lawrence, Anna Zeng, Michael Cantara and Rich Caputo.
