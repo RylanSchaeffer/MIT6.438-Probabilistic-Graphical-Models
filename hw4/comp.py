@@ -111,7 +111,7 @@ def compute_posteriors(hs, hs_forward, hs_backward, Js, Js_forward, Js_backward)
     for i in range(len(hs)):
         if i == 0:
             hs_hat[i] = hs[i] + hs_backward[i+1][i]
-            Js_hat[i] = Js[i][i][0, 0] + Js_backward[i+1][i]
+            Js_hat[i] = Js[i][i] + Js_backward[i+1][i]
         elif i == (len(hs) - 1):
             hs_hat[i] = hs[i] + hs_forward[i-1][i]
             Js_hat[i] = Js[i][i] + Js_forward[i-1][i]
@@ -180,6 +180,11 @@ observed_indices = np.array([True if (i + 1) % m == 0 else False for i in range(
 Rs[observed_indices, 1, 1] = epsilon
 Rs[np.logical_not(observed_indices), 1, 1] = sigma
 
+# option 1
+# s_rep = 100 * np.arange(1, len(y) + 1)
+# s_rep[observed_indices] = s
+
+# option 2
 s_rep = np.array([s[i//m] for i in range(len(y))])
 y_aug = np.stack([np.squeeze(y), s_rep]).transpose((1, 0))
 mu_0 = np.array([100., 100.])
